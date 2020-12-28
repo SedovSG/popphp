@@ -1,0 +1,8 @@
+---
+version: '3.7'
+
+services:
+  popphp-api:
+    image: '${REPOSITORY_NAME}/${COMPOSE_PROJECT_NAME}-app:1.0.0'
+    environment:
+      - ENV=PROD

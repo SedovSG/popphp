@@ -1,0 +1,14 @@
+.idea/
+*.sublime-project
+*.sublime-workspace
+Thumbs.db
+.DS_Store
+!.gitkeep
+**/vendor/*
+/var/
+.env
+
+**/log/
+**/data/
+**/tmp/
+

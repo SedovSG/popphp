@@ -1,0 +1,59 @@
+---
+version: '3.7'
+
+services:
+  popphp-app:
+    build:
+      context: ./docker/web
+      args:
+        UID: ${UID}
+        GID: ${GID}
+        UNAME: ${UNAME}
+    image: '${REPOSITORY_NAME}/${COMPOSE_PROJECT_NAME}-app:${DOCKER_TAG}'
+    container_name: '${COMPOSE_PROJECT_NAME}_app'
+    restart: always
+    ports:
+      - ${PORT}:80
+    working_dir: /var/www/html/
+    depends_on:
+      - ${COMPOSE_PROJECT_NAME}-mariadb
+    environment:
+      - HOST=${HOST}
+      - PORT=${PORT}
+      - APACHE_RUN_USER=#${UID}
+      - APACHE_RUN_GROUP=#${GID}
+      - URI=${URI}
+      - TZ=${TZ}
+    volumes:
+      - ./app:/var/www/html
+    networks:
+      backend:
+        aliases:
+          - '${COMPOSE_PROJECT_NAME}-backnet'
+
+  popphp-mariadb:
+    build:
+      context: ./docker/mariadb
+    image: '${REPOSITORY_NAME}/${COMPOSE_PROJECT_NAME}-mariadb'
+    container_name: '${COMPOSE_PROJECT_NAME}_mariadb'
+    restart: always
+    environment:
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - TZ=${TZ}
+    volumes:
+      - ./docker/mariadb/seed/prod/:/docker-entrypoint-initdb.d/
+      - ./docker/mariadb/config/mariadb.cnf:/etc/mysql/mariadb.cnf
+      - ./docker/mariadb/data/:/var/lib/mysql
+    ports:
+      - ${HOST}:4406:3306
+    networks:
+      backend:
+        aliases:
+          - '${COMPOSE_PROJECT_NAME}-backnet'
+
+networks:
+  backend:
+    name: '${COMPOSE_PROJECT_NAME}-network'
